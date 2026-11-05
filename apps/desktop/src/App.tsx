@@ -153,7 +153,15 @@ export default function App() {
       for (const file of selected) {
         const form = new FormData(); form.append('file', file);
         try {
-          const result = await fetch(`${import.meta.env.VITE_API_URL ?? 'http://localhost:3001'}/api/conversations/${activeChat.id}/files`, { method: 'POST', headers: { Authorization: `Bearer ${session.accessToken}` }, body: form });
+          const result = await fetch(`${import.meta.env.VITE_API_URL ?? 'http://localhost:3001'}/api/conversations/${activeChat.id}/files`, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Bypass-Tunnel-Reminder': 'true',
+              'ngrok-skip-browser-warning': 'true',
+            },
+            body: form,
+          });
           if (!result.ok) { const error = await result.json().catch(() => ({})) as { error?: string }; throw new Error(error.error ?? `Upload failed (${result.status})`); }
           const body = await result.json() as { message: ApiMessage };
           const message = mapMessage(body.message, session.user.id);

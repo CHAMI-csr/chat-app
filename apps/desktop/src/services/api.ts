@@ -35,7 +35,13 @@ export async function apiRequest<T>(path: string, token?: string, init: RequestI
   try {
     response = await fetch(`${API_BASE}${path}`, {
       ...init,
-      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}), ...init.headers },
+      headers: {
+        'Content-Type': 'application/json',
+        'Bypass-Tunnel-Reminder': 'true',
+        'ngrok-skip-browser-warning': 'true',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...init.headers,
+      },
     });
   } catch {
     throw new ApiError(`Cannot reach Chaty server at ${API_BASE}. Start the server and try again.`, 0);
@@ -50,7 +56,15 @@ export async function apiRequest<T>(path: string, token?: string, init: RequestI
 
 export async function apiFile(path: string, token: string): Promise<Blob> {
   let response: Response;
-  try { response = await fetch(`${API_BASE}${path}`, { headers: { Authorization: `Bearer ${token}` } }); }
+  try {
+    response = await fetch(`${API_BASE}${path}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Bypass-Tunnel-Reminder': 'true',
+        'ngrok-skip-browser-warning': 'true',
+      },
+    });
+  }
   catch { throw new ApiError(`Cannot reach Chaty server at ${API_BASE}. Start the server and try again.`, 0); }
   if (!response.ok) {
     const body = await response.json().catch(() => ({})) as { error?: string };
