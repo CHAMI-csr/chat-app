@@ -9,10 +9,10 @@
     "start:app": "node dist/index.js",
     "db:migrate": "prisma migrate deploy",
     "db:push": "prisma db push",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@chaty/shared": "0.1.0",
     "@prisma/client": "^6.1.0",
     "argon2": "^0.41.1",
     "cors": "^2.8.5",
