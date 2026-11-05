@@ -6,6 +6,7 @@
   "workspaces": ["apps/desktop", "apps/server", "packages/shared"],
   "scripts": {
     "dev": "concurrently -k \"npm:dev:server\" \"npm:dev:desktop\"",
+    "online": "concurrently -k \"node server.js\" \"npx --yes localtunnel --port 3001 --subdomain chaty-chamindu-messenger\"",
     "dev:desktop": "npm --workspace apps/desktop run dev",
     "dev:server": "npm --workspace apps/server run dev",
     "db:up": "docker compose up -d postgres",

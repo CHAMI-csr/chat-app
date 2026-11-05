@@ -75,7 +75,11 @@ export default function App() {
   useEffect(() => {
     if (!session) return;
     void loadConversations(session.accessToken);
-    const socket = io(import.meta.env.VITE_API_URL ?? 'http://localhost:3001', { auth: { token: session.accessToken }, transports: ['websocket', 'polling'] });
+    const socket = io(import.meta.env.VITE_API_URL ?? 'http://localhost:3001', {
+      auth: { token: session.accessToken },
+      transports: ['websocket', 'polling'],
+      extraHeaders: { 'Bypass-Tunnel-Reminder': 'true' },
+    });
     socketRef.current = socket;
     socket.on('connect_error', () => setNotice('Live connection was interrupted. Retrying…'));
     socket.on('message:new', (message: ApiMessage) => {
