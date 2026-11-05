@@ -14,6 +14,7 @@
     "db:push": "npm --workspace apps/server run db:push",
     "build": "npm --workspace packages/shared run build && npm --workspace apps/server run build && npm --workspace apps/desktop run build",
     "build:server": "npm --workspace packages/shared run build && npm --workspace apps/server run db:generate && npm --workspace apps/server run build",
+    "postinstall": "npm --workspace apps/server run db:generate",
     "package:windows": "npm --workspace apps/desktop run package:windows"
   },
   "devDependencies": { "concurrently": "^9.1.2", "typescript": "^5.7.3" }
