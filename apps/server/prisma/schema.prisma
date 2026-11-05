@@ -1,0 +1,113 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @default(uuid())
+  username       String   @unique
+  email          String   @unique
+  displayName    String   @default("")
+  passwordHash   String
+  avatarUrl      String?
+  status         String   @default("offline")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  memberships    ConversationMember[]
+  messages       Message[]
+  receipts       MessageReceipt[]
+  contacts       Contact[] @relation("contactOwner")
+  contactOf      Contact[] @relation("contactTarget")
+  refreshTokens  RefreshToken[]
+}
+
+model Conversation {
+  id        String   @id @default(uuid())
+  type      String   @default("private")
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  members   ConversationMember[]
+  messages  Message[]
+}
+
+model ConversationMember {
+  conversationId String
+  userId         String
+  role           String   @default("member")
+  joinedAt       DateTime @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user           User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([conversationId, userId])
+  @@index([userId, joinedAt])
+}
+
+model Message {
+  id             String   @id @default(uuid())
+  clientMessageId String
+  conversationId String
+  senderId       String
+  content        String?
+  type           String   @default("text")
+  createdAt      DateTime @default(now())
+  editedAt       DateTime?
+  deletedAt      DateTime?
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User @relation(fields: [senderId], references: [id], onDelete: Restrict)
+  attachments    Attachment[]
+  receipts       MessageReceipt[]
+
+  @@unique([senderId, clientMessageId])
+  @@index([conversationId, createdAt])
+}
+
+model Attachment {
+  id          String   @id @default(uuid())
+  messageId   String
+  fileName    String
+  mimeType    String?
+  fileSize    BigInt
+  storageKey  String   @unique
+  createdAt   DateTime @default(now())
+  message     Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+}
+
+model MessageReceipt {
+  messageId String
+  userId    String
+  status    String   @default("sent")
+  updatedAt DateTime @updatedAt
+  message   Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([messageId, userId])
+  @@index([userId, status])
+}
+
+model Contact {
+  userId        String
+  contactUserId String
+  status        String   @default("pending")
+  createdAt     DateTime @default(now())
+  user          User @relation("contactOwner", fields: [userId], references: [id], onDelete: Cascade)
+  contactUser   User @relation("contactTarget", fields: [contactUserId], references: [id], onDelete: Cascade)
+
+  @@id([userId, contactUserId])
+  @@index([contactUserId, status])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+}

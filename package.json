@@ -1,0 +1,20 @@
+{
+  "name": "chaty-messenger",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Chaty desktop messenger",
+  "workspaces": ["apps/desktop", "apps/server", "packages/shared"],
+  "scripts": {
+    "dev": "concurrently -k \"npm:dev:server\" \"npm:dev:desktop\"",
+    "dev:desktop": "npm --workspace apps/desktop run dev",
+    "dev:server": "npm --workspace apps/server run dev",
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
+    "db:generate": "npm --workspace apps/server run db:generate",
+    "db:push": "npm --workspace apps/server run db:push",
+    "build": "npm --workspace packages/shared run build && npm --workspace apps/server run build && npm --workspace apps/desktop run build",
+    "build:server": "npm --workspace packages/shared run build && npm --workspace apps/server run db:generate && npm --workspace apps/server run build",
+    "package:windows": "npm --workspace apps/desktop run package:windows"
+  },
+  "devDependencies": { "concurrently": "^9.1.2", "typescript": "^5.7.3" }
+}
